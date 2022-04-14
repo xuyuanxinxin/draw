@@ -9,6 +9,7 @@ let x = 0
 let y = 0
 let isDraw = false
 let shouldContinue = false
+let isMobile = false
 const imageSource = ref("")
 
 const canvasContext = ref<HTMLCanvasElement>()
@@ -21,7 +22,10 @@ const draw = (e: MouseEvent | TouchEvent) => {
   } else {
     target = e
   }
-  if (isDraw && canvasContext.value !== undefined) {
+  if (
+    (isDraw && canvasContext.value !== undefined) ||
+    (isMobile && canvasContext.value !== undefined)
+  ) {
     const [px, py] = [
       target.clientX - canvasContext.value.offsetLeft,
       target.clientY - canvasContext.value.offsetTop,
@@ -53,6 +57,13 @@ const clickHandle = () => {
   if (isDraw === true) {
     shouldContinue = !shouldContinue
   }
+  if (isMobile) {
+    shouldContinue = true
+  }
+}
+const endHandle = () => {
+  console.log("touch end")
+  shouldContinue = false
 }
 
 // clear the canvas
@@ -96,7 +107,9 @@ onMounted(() => {
         navigator.userAgent
       )
     ) {
+      isMobile = true
       canvasContext.value.addEventListener("touchstart", clickHandle)
+      canvasContext.value.addEventListener("touchend", endHandle)
     } else {
       canvasContext.value.addEventListener("click", clickHandle)
     }
@@ -114,7 +127,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <canvas ref="canvasContext" width="500" height="500"> </canvas>
+  <canvas ref="canvasContext" width="500" height="500" />
   <div class="tool-pane">
     <el-button @click="clear">Clear</el-button>
     <el-color-picker id="colorInput" v-model="colorInput" />
@@ -129,7 +142,12 @@ canvas {
 }
 .tool-pane {
   margin: 0 auto;
-  width: 500px;
+  @media only screen and (min-width: 768px) {
+    width: 500px;
+  }
+  @media only screen and (max-width: 768px) {
+    width: 100%;
+  }
   display: flex;
   flex-direction: row;
   justify-content: space-around;
