@@ -89,6 +89,8 @@ const output = () => {
 
 onMounted(() => {
   if (canvasContext.value !== undefined) {
+    canvasContext.value.width = window.innerWidth
+    canvasContext.value.height = window.innerHeight * 0.6
     ctx.value = canvasContext.value.getContext("2d")!
     ctx.value.lineJoin = "round"
     ctx.value.lineCap = "round"
@@ -127,7 +129,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <canvas ref="canvasContext" width="500" height="500" />
+  <canvas ref="canvasContext" />
   <div class="tool-pane">
     <el-button @click="clear">Clear</el-button>
     <el-color-picker id="colorInput" v-model="colorInput" />
