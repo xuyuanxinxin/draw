@@ -12,11 +12,19 @@ let shouldContinue = false
 const imageSource = ref("")
 
 const canvasContext = ref<HTMLCanvasElement>()
-const draw = (e: MouseEvent) => {
+const draw = (e: MouseEvent | TouchEvent) => {
+  let target = null
+  if (e instanceof TouchEvent) {
+    target = e.touches[0]
+    e.preventDefault()
+    e.stopPropagation()
+  } else {
+    target = e
+  }
   if (isDraw && canvasContext.value !== undefined) {
     const [px, py] = [
-      e.clientX - canvasContext.value.offsetLeft,
-      e.clientY - canvasContext.value.offsetTop,
+      target.clientX - canvasContext.value.offsetLeft,
+      target.clientY - canvasContext.value.offsetTop,
     ]
     if ((x === 0 && y === 0) || shouldContinue) {
       ;[x, y] = [px, py]
@@ -82,13 +90,26 @@ onMounted(() => {
       canvasContext.value.height
     )
     canvasContext.value.addEventListener("mousemove", draw)
-    canvasContext.value.addEventListener("click", clickHandle)
+    canvasContext.value.addEventListener("touchmove", draw)
+    if (
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      )
+    ) {
+      canvasContext.value.addEventListener("touchstart", clickHandle)
+    } else {
+      canvasContext.value.addEventListener("click", clickHandle)
+    }
   }
 })
 
 onUnmounted(() => {
-  window.removeEventListener("mousemove", draw)
-  window.removeEventListener("click", clickHandle)
+  if (canvasContext.value !== undefined) {
+    canvasContext.value.removeEventListener("mousemove", draw)
+    canvasContext.value.removeEventListener("touchmove", draw)
+    canvasContext.value.removeEventListener("click", clickHandle)
+    canvasContext.value.removeEventListener("touchstart", clickHandle)
+  }
 })
 </script>
 
