@@ -71,6 +71,8 @@ const clear = () => {
   const canvasBox = canvasContext.value!
   if (ctx.value !== undefined) {
     ctx.value.clearRect(0, 0, canvasBox.width, canvasBox.height)
+    ctx.value.fillStyle = "white"
+    ctx.value.fillRect(0, 0, canvasBox.width, canvasBox.height)
   }
 }
 
@@ -91,6 +93,8 @@ onMounted(() => {
   if (canvasContext.value !== undefined) {
     canvasContext.value.width = window.innerWidth
     canvasContext.value.height = window.innerHeight * 0.6
+    console.log(canvasContext.value.getBoundingClientRect())
+
     ctx.value = canvasContext.value.getContext("2d")!
     ctx.value.lineJoin = "round"
     ctx.value.lineCap = "round"
@@ -102,6 +106,14 @@ onMounted(() => {
       canvasContext.value.width,
       canvasContext.value.height
     )
+    canvasContext.value.addEventListener("mousedown", () => {
+      isDraw = true
+      shouldContinue = !shouldContinue
+    })
+    canvasContext.value.addEventListener("mouseup", () => {
+      isDraw = false
+    })
+
     canvasContext.value.addEventListener("mousemove", draw)
     canvasContext.value.addEventListener("touchmove", draw)
     if (
@@ -113,7 +125,7 @@ onMounted(() => {
       canvasContext.value.addEventListener("touchstart", clickHandle)
       canvasContext.value.addEventListener("touchend", endHandle)
     } else {
-      canvasContext.value.addEventListener("click", clickHandle)
+      // canvasContext.value.addEventListener("click", clickHandle)
     }
   }
 })
