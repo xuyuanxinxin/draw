@@ -14,17 +14,19 @@ const imageSource = ref("")
 
 const canvasContext = ref<HTMLCanvasElement>()
 const draw = (e: MouseEvent | TouchEvent) => {
-  let target = null
-  if (e instanceof TouchEvent) {
-    target = e.touches[0]
+  let target: MouseEvent | Touch | null = null
+  if (window.TouchEvent && e instanceof TouchEvent) {
+    target = e.touches[0] as Touch
+    console.log(e.touches[0])
     e.preventDefault()
     e.stopPropagation()
-  } else {
+  } else if (e instanceof MouseEvent) {
     target = e
   }
   if (
-    (isDraw && canvasContext.value !== undefined) ||
-    (isMobile && canvasContext.value !== undefined)
+    target !== null &&
+    ((isDraw && canvasContext.value !== undefined) ||
+      (isMobile && canvasContext.value !== undefined))
   ) {
     const [px, py] = [
       target.clientX - canvasContext.value.offsetLeft,
